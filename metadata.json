@@ -1,0 +1,6 @@
+{
+  "name": "EcoTrack AI",
+  "description": "Interactive mobile-web carbon tracker and AI-powered sustainability advisor with real-time reduction plans.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
