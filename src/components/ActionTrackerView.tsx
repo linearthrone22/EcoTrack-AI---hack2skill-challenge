@@ -167,19 +167,30 @@ export default function ActionTrackerView({
             </p>
           </div>
         </div>
-        <button className="bg-white hover:bg-neutral-50 text-amber-950 font-bold text-[10px] py-1.5 px-3 rounded-lg shadow-sm shrink-0 transition-colors cursor-pointer">
+        <button 
+          aria-label="View rewards catalog and achievements program"
+          className="bg-white hover:bg-neutral-50 text-amber-950 font-bold text-[10px] py-1.5 px-3 rounded-lg shadow-sm shrink-0 transition-colors cursor-pointer"
+        >
           Rewards
         </button>
       </div>
 
       {/* Horizontal categories scrolls */}
-      <div className="flex items-center space-x-2.5 overflow-x-auto no-scrollbar py-1">
+      <div 
+        role="tablist" 
+        aria-label="Filter tasks list by carbon category" 
+        className="flex items-center space-x-2.5 overflow-x-auto no-scrollbar py-1"
+      >
         {chips.map((chip) => {
           const isActive = activeChip === chip;
           return (
             <button
               key={chip}
+              id={`tasks-category-chip-${chip.toLowerCase().replace(/\s+/g, '-')}`}
               onClick={() => setActiveChip(chip)}
+              role="tab"
+              aria-selected={isActive}
+              aria-label={`Show ${chip} carbon commitments`}
               className={`text-[10px] uppercase tracking-wider font-extrabold px-4 py-2 rounded-full cursor-pointer transition-all duration-300 shrink-0 ${
                 isActive
                   ? "bg-emerald-805 bg-emerald-800 text-white shadow-sm"
@@ -221,9 +232,11 @@ export default function ActionTrackerView({
                 }`}
               >
                 <div className="flex items-center justify-between w-full">
-                  <div 
+                  <button 
                     onClick={() => onToggleTask(task.id)}
-                    className="flex-1 flex items-center space-x-3.5 min-w-0 cursor-pointer"
+                    aria-label={`Toggle task completion: ${task.name}`}
+                    aria-pressed={isCompleted}
+                    className="flex-1 flex items-center space-x-3.5 min-w-0 cursor-pointer border-none bg-transparent text-left focus:outline-none p-0"
                   >
                     <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
                       isCompleted ? "bg-emerald-100/50" : "bg-gray-50"
@@ -240,12 +253,14 @@ export default function ActionTrackerView({
                         +{task.points} pts
                       </span>
                     </div>
-                  </div>
+                  </button>
 
                   {/* Check action circle indicator */}
-                  <div 
+                  <button 
                     onClick={() => onToggleTask(task.id)}
-                    className="relative shrink-0 pr-1 cursor-pointer"
+                    aria-label={`Checklist marker for ${task.name}`}
+                    aria-pressed={isCompleted}
+                    className="relative shrink-0 pr-1 cursor-pointer border-none bg-transparent focus:outline-none p-0"
                   >
                     <div className={`w-6 h-6 rounded-full border-2 transition-all flex items-center justify-center ${
                       isCompleted
@@ -254,7 +269,7 @@ export default function ActionTrackerView({
                     }`}>
                       {isCompleted && <Check className="w-3.5 h-3.5 text-white stroke-[3.5]" />}
                     </div>
-                  </div>
+                  </button>
                 </div>
 
                 {/* Verification sub-tier for completed unverified task */}
@@ -336,7 +351,16 @@ export default function ActionTrackerView({
                 onDragLeave={handleDrag}
                 onDrop={handleDrop}
                 onClick={triggerUploadInput}
-                className={`border-2 border-dashed rounded-3xl p-6 text-center flex flex-col items-center justify-center cursor-pointer transition-all ${
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    triggerUploadInput();
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label="Verification evidence upload dropzone. Drag and drop your commuter ticket or photo receipt, or select to choose from local device files."
+                className={`border-2 border-dashed rounded-3xl p-6 text-center flex flex-col items-center justify-center cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2 ${
                   dragActive
                     ? "border-emerald-600 bg-emerald-500/10"
                     : selectedFileName

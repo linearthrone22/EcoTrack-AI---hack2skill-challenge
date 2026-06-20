@@ -294,11 +294,15 @@ export default function App() {
         {/* 
           Fixed Navigation Bottom Tab Bar - Geometric Balance (Height 24 with bottom padding)
         */}
-        <nav className="h-24 bg-white border-t border-gray-100 flex items-center justify-around px-4 pb-4 shrink-0 z-40 select-none">
+        <nav role="tablist" aria-label="Main application tabs" className="h-24 bg-white border-t border-gray-100 flex items-center justify-around px-4 pb-4 shrink-0 z-40 select-none">
           {/* Home Tab */}
           <button
+            id="tab-btn-home"
+            role="tab"
+            aria-selected={activeView === "dashboard"}
+            aria-label="Home Dashboard, view baseline and impact analytics"
             onClick={() => setActiveView("dashboard")}
-            className={`flex flex-col items-center justify-center w-14 h-14 transition-all ${
+            className={`flex flex-col items-center justify-center w-14 h-14 transition-all focus:outline-none cursor-pointer ${
               activeView === "dashboard" ? "text-emerald-700 font-bold" : "text-gray-400 hover:text-slate-500"
             }`}
           >
@@ -312,8 +316,12 @@ export default function App() {
 
           {/* Track Tab */}
           <button
+            id="tab-btn-tracker"
+            role="tab"
+            aria-selected={activeView === "tracker"}
+            aria-label="Carbon Reduction Tracker, log actions and track savings"
             onClick={() => setActiveView("tracker")}
-            className={`flex flex-col items-center justify-center w-14 h-14 transition-all ${
+            className={`flex flex-col items-center justify-center w-14 h-14 transition-all focus:outline-none cursor-pointer ${
               activeView === "tracker" ? "text-emerald-700 font-bold" : "text-gray-400 hover:text-slate-500"
             }`}
           >
@@ -327,8 +335,12 @@ export default function App() {
 
           {/* Insights (AI Assistant) Tab */}
           <button
+            id="tab-btn-insights"
+            role="tab"
+            aria-selected={activeView === "assistant"}
+            aria-label="AI Coach and Insights assistant, chat about your environmental impact"
             onClick={() => setActiveView("assistant")}
-            className={`flex flex-col items-center justify-center w-14 h-14 transition-all ${
+            className={`flex flex-col items-center justify-center w-14 h-14 transition-all focus:outline-none cursor-pointer ${
               activeView === "assistant" ? "text-emerald-700 font-bold" : "text-gray-400 hover:text-slate-500"
             }`}
           >
@@ -342,8 +354,12 @@ export default function App() {
 
           {/* Profile (Questionnaire Setup/redo) Tab */}
           <button
+            id="tab-btn-profile"
+            role="tab"
+            aria-selected={activeView === "questionnaire"}
+            aria-label="Profile Questionnaire, edit your carbon baseline configuration"
             onClick={() => setActiveView("questionnaire")}
-            className={`flex flex-col items-center justify-center w-14 h-14 transition-all ${
+            className={`flex flex-col items-center justify-center w-14 h-14 transition-all focus:outline-none cursor-pointer ${
               activeView === "questionnaire" ? "text-emerald-700 font-bold" : "text-gray-400 hover:text-slate-500"
             }`}
           >

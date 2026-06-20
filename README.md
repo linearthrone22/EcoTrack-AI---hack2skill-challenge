@@ -64,3 +64,27 @@ EcoTrack AI utilizes a highly visual, cohesive **Geometric Balance** layout, pac
 2.  **Tree Equivalence Ratio:** A standardized offset metric is assumed where one planted/preserved native tree absorbs approximately `25 kg CO2e` per year in real-world conditions.
 3.  **Checklist Scale Factors:** Checklist daily savings ranges (e.g., transit saving `2.4 kg` per commute) map directly to real-world averages for mid-size metropolitan zones.
 4.  **Local State Contingency:** If the back-end API proxy server is offline, the client gracefully transitions to an advanced local rule-based environmental counselor model to maintain uptime.
+
+---
+
+## 5. Automated Test Suite (Testing Architecture)
+To achieve complete mathematical proof and runtime assurance, **EcoTrack AI** includes an automated unit testing suite powered by **Vitest**.
+*   **Target Scope:** Tests regional utilities grid algorithms, transport hierarchies (gas vs. electric light rail), custom dietary greenhouse impact variations, and tree preservation conversions.
+*   **Execution Commands:** 
+    ```bash
+    npm run test     # Triggers 'vitest run'
+    ```
+*   **Test Cases covered:**
+    *   `should accurately apply Indonesian (ID) high-carbon grid multipliers compared to US and EU` — validates that ID coal power (0.82) estimates higher emission totals than US combined (0.38).
+    *   `should verify that driving a car is worse for emissions than taking public transit` — asserting precise subtraction boundaries for transportation.
+    *   `should verify relative nutritional footprint hierarchies (Heavy Meat > Vegan)` — confirming that greenhouse output rules are correctly met.
+    *   `should calculate correct tree retention equivalents` — asserting core equivalencies for carbon offset metric boundaries.
+
+---
+
+## 6. WCAG 2.1 Accessibility Architecture
+To guarantee access for users with screen-readers or keyboard-only controls, the system supports a comprehensive semantic layout:
+*   **Accessible Tablists & Indicators:** All horizontal option grids, onboarding selectors, and primary tab bars utilize the standard parent `role="tablist"` or `role="radiogroup"` containers with `role="radio"`, `role="tab"`, `aria-checked`, and `aria-selected` active states.
+*   **Keyboard Focusable Interactive Elements:** Custom button containers and card triggers feature distinct focus selectors with clear outline accents and keyboard event handlers supporting native Space and Enter operations.
+*   **Voice Control Context Labels:** Every interactive control, including input forms, notifications, and icon-only send buttons has descriptive, clear `aria-label` labels to guide assistive devices seamlessly.
+

@@ -1,5 +1,12 @@
 import { Sparkles, Car, Utensils, Home, ArrowDown, Trees, Milestone, TrendingDown } from "lucide-react";
 import { motion } from "motion/react";
+import { 
+  REGIONAL_GRID_FACTORS, 
+  TRANSPORT_EMISSIONS, 
+  DIET_EMISSIONS, 
+  ENERGY_KWH, 
+  calculateTreeEquivalency 
+} from "../lib/carbonMath";
 
 export interface DashboardViewProps {
   key?: string;
@@ -27,7 +34,7 @@ export default function DashboardView({
   // Calculate dynamic annual savings and tree equivalents
   const monthlySavings = Math.max(0, originalBaseline - currentPace);
   const annualSavings = Math.round(monthlySavings * 12);
-  const treesSaved = Math.max(1, Math.round(annualSavings / 25));
+  const treesSaved = calculateTreeEquivalency(annualSavings);
 
   // Percentage for the gauge
   const maxCapacity = originalBaseline || 342;
@@ -36,17 +43,19 @@ export default function DashboardView({
   const circumference = Math.PI * radius;
   const strokeDashoffset = circumference - ((100 - percentage) / 100) * circumference;
 
-  // Render category values based on types or default formulas
-  const transportVal = transportType === 'car' ? 180 : transportType === 'transit' ? 50 : 0;
-  const dietVal = dietType === 'heavy' ? 160 : dietType === 'average' ? 110 : dietType === 'vegetarian' ? 45 : 20;
+  // Render category values based on modular configurations
+  const transportVal = TRANSPORT_EMISSIONS[transportType as keyof typeof TRANSPORT_EMISSIONS] !== undefined
+    ? TRANSPORT_EMISSIONS[transportType as keyof typeof TRANSPORT_EMISSIONS]
+    : 50;
+  const dietVal = DIET_EMISSIONS[dietType as keyof typeof DIET_EMISSIONS] !== undefined
+    ? DIET_EMISSIONS[dietType as keyof typeof DIET_EMISSIONS]
+    : 110;
   
-  let kwh = 250;
-  if (energyType === 'low') kwh = 100;
-  if (energyType === 'high') kwh = 500;
-  let factor = 0.38;
-  if (region === "ID") factor = 0.82;
-  if (region === "EU") factor = 0.25;
-  const energyVal = Math.round(kwh * factor);
+  const kwh = ENERGY_KWH[energyType as keyof typeof ENERGY_KWH] !== undefined
+    ? ENERGY_KWH[energyType as keyof typeof ENERGY_KWH]
+    : 250;
+  const gridFactor = REGIONAL_GRID_FACTORS[region] || 0.38;
+  const energyVal = Math.round(kwh * gridFactor);
 
   return (
     <motion.div

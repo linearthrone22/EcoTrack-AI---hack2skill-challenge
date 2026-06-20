@@ -174,23 +174,31 @@ export default function AIAssistantView({
       </div>
 
       {/* Fixed bottom chat bar right above main tab navigation */}
-      <div className="absolute bottom-4 left-4 right-4 bg-white rounded-3xl border border-gray-100 shadow-lg px-4 py-3 z-20 flex items-center space-x-3.5">
-        <button className="text-gray-400 hover:text-emerald-700 p-1.5 rounded-full hover:bg-slate-50 transition-colors shrink-0">
+      <div className="absolute bottom-4 left-4 right-4 bg-white rounded-3xl border border-gray-100 shadow-lg px-4 py-3 z-20 flex items-center space-x-3.5" role="form" aria-label="EcoTrack AI Chatbot Input">
+        <button 
+          className="text-gray-400 hover:text-emerald-700 p-1.5 rounded-full hover:bg-slate-50 transition-colors shrink-0 cursor-pointer"
+          aria-label="Add optional files or reference documents to conversation context"
+          id="chat-plus-attachment-btn"
+        >
           <Plus className="w-5 h-5 stroke-[2]" />
         </button>
 
         <input
           type="text"
+          id="chatbot-text-input-field"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Ask anything about your footprint..."
+          aria-label="Type your carbon footprint or sustainability question here"
           className="flex-1 bg-transparent text-xs text-gray-800 placeholder-gray-400 focus:outline-none py-1.5 focus:ring-0"
         />
 
         <button
           onClick={handleSend}
-          className="w-8 h-8 bg-emerald-800 hover:bg-emerald-900 text-white rounded-full flex items-center justify-center hover:scale-105 shrink-0 transition-all cursor-pointer shadow-sm"
+          id="chatbot-send-message-btn"
+          aria-label="Send message to EcoTrack AI assistant"
+          className="w-8 h-8 bg-emerald-800 hover:bg-emerald-900 text-white rounded-full flex items-center justify-center hover:scale-105 shrink-0 transition-all cursor-pointer shadow-sm focus:outline-none"
         >
           <Send className="w-3.5 h-3.5 text-white" />
         </button>

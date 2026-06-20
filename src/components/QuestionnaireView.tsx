@@ -14,6 +14,7 @@ import {
   ArrowLeft 
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { calculateMonthlyFootprint } from "../lib/carbonMath";
 
 export interface QuestionnaireViewProps {
   key?: string;
@@ -46,25 +47,13 @@ export default function QuestionnaireView({ onCompleted, onBack }: Questionnaire
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Calculate footprint
-      let transportEffort = 50;
-      if (transport === "car") transportEffort = 180;
-      if (transport === "cycling" || transport === "walking") transportEffort = 0;
-
-      let dietEffort = 110;
-      if (diet === "heavy") dietEffort = 160;
-      if (diet === "vegetarian") dietEffort = 45;
-      if (diet === "vegan") dietEffort = 20;
-
-      let kwh = 250;
-      if (energy === "low") kwh = 100;
-      if (energy === "high") kwh = 500;
-
-      let factor = 0.38; // US default
-      if (region === "ID") factor = 0.82;
-      if (region === "EU") factor = 0.25;
-
-      const calculatedCO2 = Math.round(transportEffort + dietEffort + (kwh * factor));
+      // Calculate baseline carbon footprint using unified math engine
+      const calculatedCO2 = calculateMonthlyFootprint({
+        region,
+        transport,
+        diet,
+        energy
+      });
 
       onCompleted({
         region,
@@ -112,7 +101,7 @@ export default function QuestionnaireView({ onCompleted, onBack }: Questionnaire
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 mt-4">
+            <div className="grid grid-cols-1 gap-3 mt-4" role="radiogroup" aria-label="Select local carbon intensity context">
               {[
                 { id: "ID", name: "Indonesia (ID)", detail: "High carbon grid (0.82 kg CO2e/kWh)", icon: Globe },
                 { id: "US", name: "United States (US)", detail: "Average carbon grid (0.38 kg CO2e/kWh)", icon: Globe },
@@ -122,8 +111,12 @@ export default function QuestionnaireView({ onCompleted, onBack }: Questionnaire
                 return (
                   <button
                     key={loc.id}
+                    id={`onboarding-region-btn-${loc.id.toLowerCase()}`}
                     onClick={() => setRegion(loc.id as 'ID' | 'US' | 'EU')}
-                    className={`flex items-center space-x-4 p-4 rounded-3xl border-2 text-left transition-all duration-300 w-full ${
+                    role="radio"
+                    aria-checked={isSelected}
+                    aria-label={`Select location option: ${loc.name}, current grid impact is ${loc.detail}`}
+                    className={`flex items-center space-x-4 p-4 rounded-3xl border-2 text-left transition-all duration-300 w-full cursor-pointer ${
                       isSelected
                         ? "bg-white border-emerald-600 text-emerald-950 shadow-sm ring-1 ring-emerald-600/30 font-medium"
                         : "bg-white border-transparent text-gray-400 hover:border-gray-200"
@@ -172,7 +165,7 @@ export default function QuestionnaireView({ onCompleted, onBack }: Questionnaire
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3.5 mt-4">
+            <div className="grid grid-cols-2 gap-3.5 mt-4" role="radiogroup" aria-label="Select primary commute choice">
               {[
                 { id: "car", label: "Car", icon: Car },
                 { id: "transit", label: "Public Transit", icon: Train },
@@ -183,8 +176,12 @@ export default function QuestionnaireView({ onCompleted, onBack }: Questionnaire
                 return (
                   <button
                     key={opt.id}
+                    id={`onboarding-commute-btn-${opt.id}`}
                     onClick={() => setTransport(opt.id)}
-                    className={`flex flex-col items-center justify-center p-5 rounded-[2rem] border-2 text-center aspect-square transition-all duration-300 ${
+                    role="radio"
+                    aria-checked={isSelected}
+                    aria-label={`Commute option: ${opt.label}`}
+                    className={`flex flex-col items-center justify-center p-5 rounded-[2rem] border-2 text-center aspect-square transition-all duration-300 cursor-pointer ${
                       isSelected
                         ? "bg-white border-emerald-600 text-emerald-950 shadow-sm ring-1 ring-emerald-600/30 font-medium"
                         : "bg-white border-transparent text-gray-400 hover:border-gray-200"
@@ -230,7 +227,7 @@ export default function QuestionnaireView({ onCompleted, onBack }: Questionnaire
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3.5 mt-4">
+            <div className="grid grid-cols-2 gap-3.5 mt-4" role="radiogroup" aria-label="Select typical diet type">
               {[
                 { id: "heavy", label: "Heavy Meat", icon: Beef },
                 { id: "average", label: "Average Meat", icon: Utensils },
@@ -241,8 +238,12 @@ export default function QuestionnaireView({ onCompleted, onBack }: Questionnaire
                 return (
                   <button
                     key={opt.id}
+                    id={`onboarding-diet-btn-${opt.id}`}
                     onClick={() => setDiet(opt.id)}
-                    className={`flex flex-col items-center justify-center p-5 rounded-[2rem] border-2 text-center aspect-square transition-all duration-300 ${
+                    role="radio"
+                    aria-checked={isSelected}
+                    aria-label={`Diet choice: ${opt.label}`}
+                    className={`flex flex-col items-center justify-center p-5 rounded-[2rem] border-2 text-center aspect-square transition-all duration-300 cursor-pointer ${
                       isSelected
                         ? "bg-white border-emerald-600 text-emerald-950 shadow-sm ring-1 ring-emerald-600/30 font-medium"
                         : "bg-white border-transparent text-gray-400 hover:border-gray-200"
@@ -288,7 +289,7 @@ export default function QuestionnaireView({ onCompleted, onBack }: Questionnaire
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 mt-4">
+            <div className="grid grid-cols-1 gap-3 mt-4" role="radiogroup" aria-label="Select household electric load">
               {[
                 { id: "low", label: "Low consumption", desc: "100 kWh / Month", icon: Zap },
                 { id: "medium", label: "Moderate consumption", desc: "250 kWh / Month", icon: Zap },
@@ -298,8 +299,12 @@ export default function QuestionnaireView({ onCompleted, onBack }: Questionnaire
                 return (
                   <button
                     key={opt.id}
+                    id={`onboarding-energy-btn-${opt.id}`}
                     onClick={() => setEnergy(opt.id)}
-                    className={`flex items-center space-x-4 p-4 rounded-3xl border-2 text-left transition-all duration-300 w-full ${
+                    role="radio"
+                    aria-checked={isSelected}
+                    aria-label={`Utilities choice: ${opt.label}, Average rating of ${opt.desc}`}
+                    className={`flex items-center space-x-4 p-4 rounded-3xl border-2 text-left transition-all duration-300 w-full cursor-pointer ${
                       isSelected
                         ? "bg-white border-emerald-600 text-emerald-950 shadow-sm ring-1 ring-emerald-600/30 font-medium"
                         : "bg-white border-transparent text-gray-400 hover:border-gray-200"
