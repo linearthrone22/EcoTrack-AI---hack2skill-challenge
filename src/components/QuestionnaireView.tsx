@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { 
   Globe, 
   Car, 
@@ -28,7 +28,7 @@ export interface QuestionnaireViewProps {
   onBack?: () => void;
 }
 
-export default function QuestionnaireView({ onCompleted, onBack }: QuestionnaireViewProps) {
+const QuestionnaireViewComponent = ({ onCompleted, onBack }: QuestionnaireViewProps) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
 
   // Selections state
@@ -364,4 +364,6 @@ export default function QuestionnaireView({ onCompleted, onBack }: Questionnaire
       </div>
     </motion.div>
   );
-}
+};
+
+export default React.memo(QuestionnaireViewComponent);

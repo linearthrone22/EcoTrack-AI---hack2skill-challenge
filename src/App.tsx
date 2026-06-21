@@ -1,12 +1,13 @@
-import { useState } from "react";
+import React, { useState, useCallback, Suspense, lazy } from "react";
 import { Home, ClipboardList, Sparkles, User, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import Header from "./components/Header";
-import QuestionnaireView from "./components/QuestionnaireView";
-import DashboardView from "./components/DashboardView";
-import ActionTrackerView from "./components/ActionTrackerView";
-import AIAssistantView from "./components/AIAssistantView";
 import { Task, Message, ViewType } from "./types";
+
+const QuestionnaireView = lazy(() => import("./components/QuestionnaireView"));
+const DashboardView = lazy(() => import("./components/DashboardView"));
+const ActionTrackerView = lazy(() => import("./components/ActionTrackerView"));
+const AIAssistantView = lazy(() => import("./components/AIAssistantView"));
 
 export default function App() {
   // Navigation active view state initialized to 'questionnaire' so user starts with profiling
@@ -56,8 +57,13 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isAddingAllPlan, setIsAddingAllPlan] = useState<boolean>(false);
 
+  const showToast = useCallback((msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  }, []);
+
   // Trigger task complete toggle
-  const handleToggleTask = (id: string) => {
+  const handleToggleTask = useCallback((id: string) => {
     setTasks((prevTasks) =>
       prevTasks.map((task) => {
         if (task.id === id) {
@@ -77,10 +83,10 @@ export default function App() {
         return task;
       })
     );
-  };
+  }, []);
 
   // Verification handling (Flow 3 of technical blueprint)
-  const handleVerifyTask = (id: string, proofName: string) => {
+  const handleVerifyTask = useCallback((id: string, proofName: string) => {
     setTasks((prevTasks) =>
       prevTasks.map((task) => {
         if (task.id === id && !task.verified) {
@@ -92,10 +98,10 @@ export default function App() {
         return task;
       })
     );
-  };
+  }, [showToast]);
 
   // Onboarding sequence completed handler
-  const handleOnboardingCompleted = (results: {
+  const handleOnboardingCompleted = useCallback((results: {
     region: 'ID' | 'US' | 'EU';
     transport: string;
     diet: string;
@@ -110,38 +116,35 @@ export default function App() {
     setBaselineCO2(results.calculatedCO2);
     setActiveView("dashboard");
     showToast("Carbon Onboarding Profile finalized!");
-  };
+  }, [showToast]);
 
   // Trigger 'Add all to My Plan' from the AI Assistant View
-  const handleAddAllToPlan = () => {
+  const handleAddAllToPlan = useCallback(() => {
     setIsAddingAllPlan(true);
 
     // Filter roadmap tasks to add them to user's daily Action Checklist
     setTimeout(() => {
-      const cycleExists = tasks.some(t => t.name === "Cycle to the Office");
-      
-      if (!cycleExists) {
-        const newPlannedTasks: Task[] = [
-          { id: "plan-cycle", name: "Cycle to the Office", points: 40, category: "Transport", checked: false, co2Saved: 4.2 },
-          { id: "plan-rail", name: "Electric Light Rail", points: 30, category: "Transport", checked: false, co2Saved: 5.8 },
-          { id: "plan-carpool", name: "Carpooling (3+ people)", points: 25, category: "Transport", checked: false, co2Saved: 2.8 },
-        ];
-        setTasks(prev => [...prev, ...newPlannedTasks]);
-        showToast("Roadmap actions added to your Tracker!");
-      } else {
-        showToast("These tasks are already in your checklist!");
-      }
+      setTasks(prev => {
+        const cycleExists = prev.some(t => t.name === "Cycle to the Office");
+        if (!cycleExists) {
+          const newPlannedTasks: Task[] = [
+            { id: "plan-cycle", name: "Cycle to the Office", points: 40, category: "Transport", checked: false, co2Saved: 4.2 },
+            { id: "plan-rail", name: "Electric Light Rail", points: 30, category: "Transport", checked: false, co2Saved: 5.8 },
+            { id: "plan-carpool", name: "Carpooling (3+ people)", points: 25, category: "Transport", checked: false, co2Saved: 2.8 },
+          ];
+          showToast("Roadmap actions added to your Tracker!");
+          return [...prev, ...newPlannedTasks];
+        } else {
+          showToast("These tasks are already in your checklist!");
+          return prev;
+        }
+      });
 
       setIsAddingAllPlan(false);
       // Navigate to Action Tracker so they see the result immediately
       setActiveView("tracker");
     }, 850);
-  };
-
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
-  };
+  }, [showToast]);
 
   // Manage client-to-server chat message relay with dynamic context payload (Section 3.A of blueprint)
   const handleSendMessage = async (text: string) => {
@@ -229,51 +232,57 @@ export default function App() {
 
         {/* Core view active component selector */}
         <div className="flex-1 overflow-hidden flex flex-col bg-gray-50 pt-1.5">
-          <AnimatePresence mode="wait">
-            {activeView === "questionnaire" && (
-              <QuestionnaireView
-                key="questionnaire"
-                onCompleted={handleOnboardingCompleted}
-                onBack={() => {
-                  setActiveView("dashboard");
-                }}
-              />
-            )}
+          <Suspense fallback={
+            <div className="flex-1 flex items-center justify-center text-emerald-700">
+              <Sparkles className="w-8 h-8 animate-pulse text-emerald-300" />
+            </div>
+          }>
+            <AnimatePresence mode="wait">
+              {activeView === "questionnaire" && (
+                <QuestionnaireView
+                  key="questionnaire"
+                  onCompleted={handleOnboardingCompleted}
+                  onBack={() => {
+                    setActiveView("dashboard");
+                  }}
+                />
+              )}
 
-            {activeView === "dashboard" && (
-              <DashboardView
-                key="dashboard"
-                onNavigateToAssistant={() => setActiveView("assistant")}
-                onNavigateToTracker={() => setActiveView("tracker")}
-                originalBaseline={originalBaseline}
-                currentPace={parseFloat(baselineCO2.toFixed(1))}
-                region={region}
-                transportType={transportType}
-                dietType={dietType}
-                energyType={energyType}
-              />
-            )}
+              {activeView === "dashboard" && (
+                <DashboardView
+                  key="dashboard"
+                  onNavigateToAssistant={() => setActiveView("assistant")}
+                  onNavigateToTracker={() => setActiveView("tracker")}
+                  originalBaseline={originalBaseline}
+                  currentPace={parseFloat(baselineCO2.toFixed(1))}
+                  region={region}
+                  transportType={transportType}
+                  dietType={dietType}
+                  energyType={energyType}
+                />
+              )}
 
-            {activeView === "tracker" && (
-              <ActionTrackerView
-                key="tracker"
-                tasks={tasks}
-                onToggleTask={handleToggleTask}
-                onVerifyTask={handleVerifyTask}
-                currentPoints={points}
-              />
-            )}
+              {activeView === "tracker" && (
+                <ActionTrackerView
+                  key="tracker"
+                  tasks={tasks}
+                  onToggleTask={handleToggleTask}
+                  onVerifyTask={handleVerifyTask}
+                  currentPoints={points}
+                />
+              )}
 
-            {activeView === "assistant" && (
-              <AIAssistantView
-                key="assistant"
-                messages={messages}
-                onSendMessage={handleSendMessage}
-                onAddAllToPlan={handleAddAllToPlan}
-                isAddingAllPlan={isAddingAllPlan}
-              />
-            )}
-          </AnimatePresence>
+              {activeView === "assistant" && (
+                <AIAssistantView
+                  key="assistant"
+                  messages={messages}
+                  onSendMessage={handleSendMessage}
+                  onAddAllToPlan={handleAddAllToPlan}
+                  isAddingAllPlan={isAddingAllPlan}
+                />
+              )}
+            </AnimatePresence>
+          </Suspense>
         </div>
 
         {/* Global Toast Notifier */}

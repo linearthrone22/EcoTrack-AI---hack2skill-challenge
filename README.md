@@ -88,3 +88,14 @@ To guarantee access for users with screen-readers or keyboard-only controls, the
 *   **Keyboard Focusable Interactive Elements:** Custom button containers and card triggers feature distinct focus selectors with clear outline accents and keyboard event handlers supporting native Space and Enter operations.
 *   **Voice Control Context Labels:** Every interactive control, including input forms, notifications, and icon-only send buttons has descriptive, clear `aria-label` labels to guide assistive devices seamlessly.
 
+## 7. Security & Server Infrastructure
+The Express backend incorporates enterprise-grade protection:
+*   **Helmet & CORS**: Protects against cross-site scripting and misconfigured origins.
+*   **Rate-Limiting**: Uses `express-rate-limit` to restrict IPs from spamming the conversational AI endpoints.
+*   **Payload Sanitization**: Uses `isomorphic-dompurify` to strip malicious JavaScript logic before submitting strings to the LLM agent.
+*   **Compression**: Configured Gzip-level compression for optimized bandwidth payloads.
+
+## 8. State Optimization (Efficiency)
+*   **React Suspense**: Lazy-loaded view structures delay rendering logic unless the module chunk is active.
+*   **Memoization**: All functional components are optimized using `React.memo` and internal callbacks preserve referential stability using `useCallback` to prevent deep virtual DOM tree diff re-evaluations.
+

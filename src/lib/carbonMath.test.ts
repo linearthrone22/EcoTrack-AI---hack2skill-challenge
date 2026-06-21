@@ -88,4 +88,16 @@ describe("EcoTrack AI - Regional Carbon Calculations Suite", () => {
     expect(calculateTreeEquivalency(100)).toEqual(4);
     expect(calculateTreeEquivalency(500)).toEqual(20);
   });
+
+  it("should handle unknown inputs gracefully using default fallbacks", () => {
+    const unknownFootprint = calculateMonthlyFootprint({
+      region: "UNKNOWN_REGION" as any,
+      transport: "spaceship",
+      diet: "pizza_only",
+      energy: "infinity",
+    });
+
+    // Default fallback: transit (50) + average (110) + (medium 250 * US 0.38) = 160 + 95 = 255
+    expect(unknownFootprint).toEqual(255);
+  });
 });

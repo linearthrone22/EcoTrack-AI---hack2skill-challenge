@@ -11,12 +11,12 @@ export interface AIAssistantViewProps {
   isAddingAllPlan?: boolean;
 }
 
-export default function AIAssistantView({
+const AIAssistantViewComponent = ({
   messages,
   onSendMessage,
   onAddAllToPlan,
   isAddingAllPlan = false
-}: AIAssistantViewProps) {
+}: AIAssistantViewProps) => {
   const [inputText, setInputText] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -205,4 +205,6 @@ export default function AIAssistantView({
       </div>
     </div>
   );
-}
+};
+
+export default React.memo(AIAssistantViewComponent);

@@ -1,3 +1,4 @@
+import React from "react";
 import { Sparkles, Car, Utensils, Home, ArrowDown, Trees, Milestone, TrendingDown } from "lucide-react";
 import { motion } from "motion/react";
 import { 
@@ -20,7 +21,7 @@ export interface DashboardViewProps {
   energyType?: string;
 }
 
-export default function DashboardView({
+const DashboardViewComponent = ({
   onNavigateToAssistant,
   onNavigateToTracker,
   originalBaseline = 342,
@@ -29,7 +30,7 @@ export default function DashboardView({
   transportType = 'transit',
   dietType = 'average',
   energyType = 'medium'
-}: DashboardViewProps) {
+}: DashboardViewProps) => {
   
   // Calculate dynamic annual savings and tree equivalents
   const monthlySavings = Math.max(0, originalBaseline - currentPace);
@@ -236,4 +237,6 @@ export default function DashboardView({
       </div>
     </motion.div>
   );
-}
+};
+
+export default React.memo(DashboardViewComponent);

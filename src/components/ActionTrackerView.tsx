@@ -25,12 +25,12 @@ export interface ActionTrackerViewProps {
   currentPoints: number;
 }
 
-export default function ActionTrackerView({
+const ActionTrackerViewComponent = ({
   tasks,
   onToggleTask,
   onVerifyTask,
   currentPoints
-}: ActionTrackerViewProps) {
+}: ActionTrackerViewProps) => {
   const [activeChip, setActiveChip] = useState<string>("All Actions");
   const [verifyingTaskId, setVerifyingTaskId] = useState<string | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
@@ -469,4 +469,6 @@ export default function ActionTrackerView({
       </div>
     </motion.div>
   );
-}
+};
+
+export default React.memo(ActionTrackerViewComponent);
